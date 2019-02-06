@@ -13,6 +13,14 @@
 namespace mk {
 namespace report {
 
+/// ooni_date_now formats the current date and time according to the
+/// format that is expected by the OONI collector.
+std::string ooni_date_now() noexcept;
+
+/// monotonic_seconds_now returns the current time in seconds according
+/// to the C++11 monotonic clock.
+double monotonic_seconds_now() noexcept;
+
 /// Measurement contains info about a measurement. The code that will
 /// actually run a measurement is not here. You should (1) save the
 /// measurement input (an empty string is fine), (2) call start() before
@@ -166,12 +174,21 @@ class Report {
 namespace mk {
 namespace report {
 
+std::string ooni_date_now() noexcept {
+  return "";
+}
+
+double monotonic_seconds_now() noexcept {
+  return 0.0;  // TODO(bassosimone): implement
+}
+
 void Measurement::start() noexcept {
-  // TODO(bassosimone): implement
+  start_time = ooni_date_now();
+  beginning_ = monotonic_seconds_now();
 }
 
 void Measurement::stop() noexcept {
-  // TODO(bassosimone): implement
+  runtime = monotonic_seconds_now() - beginning_;
 }
 
 Report::Report() noexcept {}
@@ -312,7 +329,7 @@ bool Report::make_content(const Measurement &measurement, std::string &content,
   m["test_keys"]["client_resolver"] = "91.80.37.104";  // TODO(bassosimone): fix
   m["test_name"] = test_name;
   m["test_runtime"] = measurement.runtime;
-  m["test_start_time"] = "2018-11-01 15:33:17";  // TODO(bassosimone): fix
+  m["test_start_time"] = test_start_time;
   m["test_version"] = test_version;
   // Step 3: dump the measurement message
   try {
