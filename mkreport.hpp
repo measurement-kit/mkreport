@@ -12,6 +12,12 @@
 namespace mk {
 namespace report {
 
+/// Measurement contains info about a measurement. The code that will
+/// actually run a measurement is not here. You should (1) save the
+/// measurement input (an empty string is fine), (2) call start() before
+/// starting the measurements, (3) run the measurement and store its
+/// JSON result in test_keys, and finally (4) call stop(). You can then
+/// pass the Measurement object to Report for submission.
 class Measurement {
  public:
   /// input is the measurement input.
