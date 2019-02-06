@@ -6,6 +6,7 @@
 
 #include <stdint.h>
 
+#include <map>
 #include <string>
 #include <vector>
 
@@ -50,6 +51,9 @@ class Measurement {
 /// Report represent a report to be submitted to the OONI collector.
 class Report {
  public:
+  /// annotation contains optional results annotations.
+  std::map<std::string, std::string> annotations;
+
   /// probe_asn is the probe ASN.
   std::string probe_asn;
 
@@ -290,7 +294,7 @@ bool Report::make_content(const Measurement &measurement, std::string &content,
   }
   // Step 2: fill the measurement JSON object
   nlohmann::json m;
-  m["annotations"] = nlohmann::json::object();  // TODO(bassosimone): expose
+  m["annotations"] = annotations;
   m["data_format_version"] = "0.2.0";
   m["id"] = "bdd20d7a-bba5-40dd-a111-9863d7908572";
   m["input"] = measurement.input;
