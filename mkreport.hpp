@@ -12,6 +12,35 @@
 namespace mk {
 namespace report {
 
+class Measurement {
+ public:
+  /// input is the measurement input.
+  std::string input;
+
+  /// start_time is the time when the measurement started.
+  std::string start_time;
+
+  /// test_keys contains the measurement test keys as a serialized
+  /// JSON object. Measurement specific code will produce this.
+  std::string test_keys;
+
+  /// runtime is the time for which the measurement run.
+  double runtime = 0.0;
+
+  /// start records the measurement start_time and the moment in
+  /// which the test started. That will be useful later to compute
+  /// the test runtime. The moment in which the test started is
+  /// computed using a monotonic clock.
+  void start() noexcept;
+
+  /// stop computes the test_runtime variable. The delta time
+  /// is computed using a monotonic clock.
+  void stop() noexcept;
+
+ private:
+  double beginning_ = 0.0;
+};
+
 /// Report represent a report to be submitted to the OONI collector.
 class Report {
  public:
@@ -81,16 +110,13 @@ class Report {
   /// in opening the report or not.
   bool open(std::vector<std::string> &logs) noexcept;
 
-  /// submit_test_keys wraps @p test_keys into a measurement and submits them
-  /// to the configured OONI collector. The @p test_keys parameter MUST be a
-  /// serialized JSON containing measurement test keys. The @p test_runtime
-  /// argument indicates the runtime of the specific measurement measured
-  /// in seconds. This function will return true on success and false on
-  /// failure. This functin will also fail immediately if the report ID is
-  /// empty or if the collector base URL is empty. In case of failure, inspect
-  /// the @p logs to have a sense of what went wrong.
-  bool submit_test_keys(std::string test_keys, double test_runtime,
-                        std::vector<std::string> &logs) noexcept;
+  /// submit_measurement turns @p measurement into a JSON object and submits it
+  /// to the configured OONI collector. This function will return true on
+  /// success and false on failure. This function will also fail immediately if
+  /// the report ID is empty or if the collector base URL is empty. In case of
+  /// failure, inspect the @p logs to have a sense of what went wrong.
+  bool submit_measurement(
+      Measurement measurement, std::vector<std::string> &logs) noexcept;
 
   /// close closes the report with the OONI collector. This function will
   /// return true on success and false on failure. In case of failure, you
@@ -107,12 +133,11 @@ class Report {
   ~Report() noexcept;
 
   /// make_content crates a serialized JSON measurement object in @p content
-  /// from the serialized JSON @p test_keys and the given @p test_runtime. It
-  /// will return true on success and false on failure. In the latter case,
-  /// the @p logs parameter will contain explanatory logs.
-  bool make_content(
-      const std::string &test_keys, double test_runtime, std::string &content,
-      std::vector<std::string> &logs) noexcept;
+  /// from the @p measurement. This function will return true on success, and
+  /// false on failure. In the latter case, the @p logs parameter will
+  /// contain explanatory logs.
+  bool make_content(const Measurement &measurement, std::string &content,
+                    std::vector<std::string> &logs) noexcept;
 };
 
 }  // namespace report
@@ -130,6 +155,14 @@ class Report {
 
 namespace mk {
 namespace report {
+
+void Measurement::start() noexcept {
+  // TODO(bassosimone): implement
+}
+
+void Measurement::stop() noexcept {
+  // TODO(bassosimone): implement
+}
 
 Report::Report() noexcept {}
 
@@ -187,8 +220,8 @@ bool Report::open(std::vector<std::string> &logs) noexcept {
   return response.good;
 }
 
-bool Report::submit_test_keys(std::string test_keys, double test_runtime,
-                              std::vector<std::string> &logs) noexcept {
+bool Report::submit_measurement(
+    Measurement measurement, std::vector<std::string> &logs) noexcept {
   if (id.empty()) {
     logs.push_back("No configured report ID.");
     return false;
@@ -200,7 +233,7 @@ bool Report::submit_test_keys(std::string test_keys, double test_runtime,
     return false;
   }
   request.base_url = collector_base_url;
-  if (!make_content(test_keys, test_runtime, request.content, logs)) {
+  if (!make_content(measurement, request.content, logs)) {
     return false;
   }
   request.ca_bundle_path = ca_bundle_path;
@@ -235,13 +268,12 @@ Report::~Report() noexcept {
   (void)close(logs);
 }
 
-bool Report::make_content(
-    const std::string &test_keys, double test_runtime, std::string &content,
-    std::vector<std::string> &logs) noexcept {
+bool Report::make_content(const Measurement &measurement, std::string &content,
+                          std::vector<std::string> &logs) noexcept {
   // Step 1: parse test keys and make sure it's a JSON object.
   nlohmann::json tk;
   try {
-    tk = nlohmann::json::parse(test_keys);
+    tk = nlohmann::json::parse(measurement.test_keys);
   } catch (const std::exception &exc) {
     logs.push_back(exc.what());
     return false;
@@ -255,9 +287,9 @@ bool Report::make_content(
   m["annotations"] = nlohmann::json::object();  // TODO(bassosimone): expose
   m["data_format_version"] = "0.2.0";
   m["id"] = "bdd20d7a-bba5-40dd-a111-9863d7908572";
-  m["input"] = nullptr;  // TODO(bassosimone): expose
+  m["input"] = measurement.input;
   m["input_hashes"] = nlohmann::json::array();
-  m["measurement_start_time"] = "2018-11-01 15:33:20";  // TODO(bassosimone): fix
+  m["measurement_start_time"] = measurement.start_time;
   m["options"] = nlohmann::json::array();
   m["probe_asn"] = probe_asn;
   m["probe_cc"] = probe_cc;
@@ -269,7 +301,7 @@ bool Report::make_content(
   m["test_keys"] = tk;
   m["test_keys"]["client_resolver"] = "91.80.37.104";  // TODO(bassosimone): fix
   m["test_name"] = test_name;
-  m["test_runtime"] = test_runtime;
+  m["test_runtime"] = measurement.runtime;
   m["test_start_time"] = "2018-11-01 15:33:17";  // TODO(bassosimone): fix
   m["test_version"] = test_version;
   // Step 3: dump the measurement message
