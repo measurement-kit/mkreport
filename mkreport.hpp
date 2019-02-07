@@ -221,9 +221,9 @@ std::string ooni_date_now() noexcept {
 }
 
 double monotonic_seconds_now() noexcept {
-  auto now = std::chrono::duration_cast<std::chrono::milliseconds>(
-      std::chrono::steady_clock::now().time_since_epoch());
-  return now.count();
+  auto now = std::chrono::steady_clock::now();
+  std::chrono::duration<double> elapsed = now.time_since_epoch();
+  return elapsed.count();
 }
 
 void Measurement::start() noexcept {
