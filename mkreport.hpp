@@ -169,6 +169,7 @@ class Report {
 #include <exception>
 #include <utility>
 
+#include "date.h"
 #include "json.hpp"
 #include "mkcollector.hpp"
 
@@ -176,7 +177,32 @@ namespace mk {
 namespace report {
 
 std::string ooni_date_now() noexcept {
-  return "";
+  // Implementation note: to avoid using the C standard library that has
+  // given us many headaches on Windows because of parameter validation we
+  // go for a fully C++11 solution based on <chrono> and on the C++11
+  // HowardHinnant/date library, which will be available as part of the
+  // C++ standard library starting from C++20.
+  //
+  // Explanation of the algorithm:
+  //
+  // 1. get the current system time
+  // 2. round the time point obtained in the previous step to an integral
+  //    number of seconds since the EPOCH used by the system clock
+  // 3. create a system clock time point from the integral number of seconds
+  // 4. convert the previous result to string using HowardInnant/date
+  // 5. if there is a decimal component (there should be one given how the
+  //    library we use works) remove it, because OONI doesn't like it
+  //
+  // (There was another way to deal with fractionary seconds, i.e. using '%OS',
+  //  but this solution seems better to me because it's less obscure.)
+  using namespace std::chrono;
+  constexpr auto fmt = "%Y-%m-%d %H:%M:%S";
+  auto sys_point = system_clock::now();                                    // 1
+  auto as_seconds = duration_cast<seconds>(sys_point.time_since_epoch());  // 2
+  auto back_as_sys_point = system_clock::time_point(as_seconds);           // 3
+  auto s = date::format(fmt, back_as_sys_point);                           // 4
+  if (s.find(".") != std::string::npos) s = s.substr(0, s.find("."));      // 5
+  return s;
 }
 
 double monotonic_seconds_now() noexcept {
