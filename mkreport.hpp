@@ -342,7 +342,14 @@ bool Report::make_content(const Measurement &measurement, std::string &content,
   nlohmann::json m;
   m["annotations"] = annotations;
   m["data_format_version"] = "0.2.0";
-  m["id"] = "bdd20d7a-bba5-40dd-a111-9863d7908572";  // TODO(bassosimone): fix
+  // The `id` field is constant for all tests. This field is not used in
+  // practice and is poised to be removed by the specification. My previous
+  // code used r-lyeh/sole@c61c49f10d to generate a UUID4. However, that
+  // library uses std::random_device, which is broken with Mingw [1], so I've
+  // taken the decision of not bothering myself with this field here.
+  //
+  // [1] https://sourceforge.net/p/mingw-w64/bugs/338/
+  m["id"] = "bdd20d7a-bba5-40dd-a111-9863d7908572";
   m["input"] = measurement.input;
   m["input_hashes"] = nlohmann::json::array();
   m["measurement_start_time"] = measurement.start_time;
