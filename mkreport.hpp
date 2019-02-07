@@ -342,7 +342,7 @@ bool Report::make_content(const Measurement &measurement, std::string &content,
   nlohmann::json m;
   m["annotations"] = annotations;
   m["data_format_version"] = "0.2.0";
-  m["id"] = "bdd20d7a-bba5-40dd-a111-9863d7908572";
+  m["id"] = "bdd20d7a-bba5-40dd-a111-9863d7908572";  // TODO(bassosimone): fix
   m["input"] = measurement.input;
   m["input_hashes"] = nlohmann::json::array();
   m["measurement_start_time"] = measurement.start_time;
