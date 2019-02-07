@@ -178,3 +178,22 @@ TEST_CASE("submit works correctly") {
     REQUIRE(!report.submit_measurement(measurement, logs));
   }
 }
+
+TEST_CASE("make_content works correctly") {
+  SECTION("when the JSON is not an object") {
+    mk::report::Measurement measurement;
+    measurement.test_keys = "[]";  // not an object
+    mk::report::Report report;
+    std::vector<std::string> logs;
+    std::string content;
+    REQUIRE(!report.make_content(measurement, content, logs));
+  }
+
+  SECTION("when we cannot serialize the complete JSON") {
+    std::vector<uint8_t> v{0xf0, 0x90, 0x28, 0xbc};
+    mk::report::Report report;
+    report.probe_asn = std::string{(char *)v.data(), v.size()};
+    std::vector<std::string> logs;
+    REQUIRE(!report.open(logs));
+  }
+}
