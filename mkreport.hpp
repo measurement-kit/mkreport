@@ -6,6 +6,7 @@
 
 #include <stdint.h>
 
+#include <chrono>
 #include <map>
 #include <string>
 #include <vector>
@@ -179,7 +180,9 @@ std::string ooni_date_now() noexcept {
 }
 
 double monotonic_seconds_now() noexcept {
-  return 0.0;  // TODO(bassosimone): implement
+  auto now = std::chrono::duration_cast<std::chrono::milliseconds>(
+      std::chrono::steady_clock::now().time_since_epoch());
+  return now.count();
 }
 
 void Measurement::start() noexcept {
