@@ -14,4 +14,6 @@ The possibility of managing the lifecycle of a report allows us to have
 external nettests, such as Psiphon.
 
 The main use case of this library is be vendored into MK sources and
-built along with MK. As such, we don't guarantee a stable API.
+built along with MK.
+
+Therefore, we don't guarantee a stable API.
