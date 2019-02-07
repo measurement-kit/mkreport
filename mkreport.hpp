@@ -90,12 +90,6 @@ class Report {
   /// ca_bundle_path is the path to the CA bundle (required on mobile).
   std::string ca_bundle_path;
 
-  /// asn_db_path is the path to MaxMind's ASN mmdb database.
-  std::string asn_db_path;
-
-  /// country_db_path is the path to MaxMind's country mmdb database.
-  std::string country_db_path;
-
   /// id is the identifier of the report.
   std::string id;
 
@@ -129,6 +123,13 @@ class Report {
   /// for the bouncer, thereby being equivalent to autodiscover_collector.
   bool autodiscover_collector_with_bouncer(
       const std::string &bouncer_base_url,
+      std::vector<std::string> &logs) noexcept;
+
+  /// autodiscover_probe_asn_probe_cc will autodiscover and configure the
+  /// probe_asn and probe_cc settings. Returns true on success and false
+  /// on failure. Please, check the @p logs in the latter case.
+  bool autodiscover_probe_asn_probe_cc(
+      const std::string &asn_db_path, const std::string &country_db_path,
       std::vector<std::string> &logs) noexcept;
 
   /// open opens a report with the configured OONI collector. This function
@@ -184,6 +185,8 @@ class Report {
 #include "json.hpp"
 #include "mkbouncer.hpp"
 #include "mkcollector.hpp"
+#include "mkiplookup.hpp"
+#include "mkmmdb.hpp"
 
 namespace mk {
 namespace report {
@@ -272,6 +275,38 @@ bool Report::autodiscover_collector_with_bouncer(
   }
   logs.push_back("cannot find any suitable https collector");
   return false;
+}
+
+bool Report::autodiscover_probe_asn_probe_cc(
+    const std::string &asn_db_path, const std::string &country_db_path,
+    std::vector<std::string> &logs) noexcept {
+  mk::iplookup::Request request;
+  request.ca_bundle_path = ca_bundle_path;
+  request.timeout = timeout;
+  mk::iplookup::Response response = mk::iplookup::perform(request);
+  std::swap(logs, response.logs);
+  if (!response.good) {
+    return false;
+  }
+  {
+    mk::mmdb::Handle handle;
+    if (!handle.open(asn_db_path, logs)) {
+      return false;
+    }
+    if (!handle.lookup_asn2(response.probe_ip, probe_asn, logs)) {
+      return false;
+    }
+  }
+  {
+    mk::mmdb::Handle handle;
+    if (!handle.open(country_db_path, logs)) {
+      return false;
+    }
+    if (!handle.lookup_cc(response.probe_ip, probe_cc, logs)) {
+      return false;
+    }
+  }
+  return true;
 }
 
 bool Report::open(std::vector<std::string> &logs) noexcept {
