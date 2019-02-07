@@ -7,10 +7,13 @@ include(MkUtils)
 # Download dependencies
 # ---------------------
 
+MkDownloadCaBundle()
 MkDownloadMMDBDatabases()
 MkDownloadCatchorgCatch2()
 MkDownloadMeasurementKitMkBouncer()
 MkDownloadMeasurementKitMkCollector()
+MkDownloadMeasurementKitMkCurl()
+MkDownloadMeasurementKitMkData()
 MkDownloadMeasurementKitMkIPLookup()
 MkDownloadMeasurementKitMkMock()
 MkDownloadMeasurementKitMkMMDB()
@@ -22,6 +25,11 @@ if("${MSVC}")
   MkDownloadMeasurementKitPrebuiltWindowsLibmaxminddb()
   list(APPEND CMAKE_REQUIRED_INCLUDES "${MK_WINDOWS_LIBMAXMINDDB_INCLUDE_PATH}")
   list(APPEND CMAKE_LIBRARY_PATH "${MK_WINDOWS_LIBMAXMINDDB_LIBRARY_PATH}")
+  MkDownloadMeasurementKitPrebuiltWindowsCurl()
+  list(APPEND CMAKE_INCLUDE_PATH "${MK_WINDOWS_CURL_INCLUDE_PATH}")
+  list(APPEND CMAKE_LIBRARY_PATH "${MK_WINDOWS_CURL_LIBRARY_PATH}")
+  add_definitions(${MK_WINDOWS_CURL_DEFINITIONS})
+  list(APPEND MKREPORT_LIBS ${MK_WINDOWS_CURL_EXTRA_LINK_LIBS})
 endif()
 
 # Checks
@@ -37,6 +45,8 @@ if (("${MKREPORT_HAVE_MAXMINDDB_H}" STREQUAL "") OR
 endif()
 list(APPEND MKREPORT_LIBS "${LIBMAXMINDDB_LIBRARY}")
 
+find_package(CURL REQUIRED)
+
 # Compiler flags
 # --------------
 
@@ -46,10 +56,11 @@ MkSetCompilerFlags()
 # ------------------
 
 set(MKREPORT_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}
-    ${CMAKE_REQUIRED_INCLUDES})
+    ${CURL_REQUIRED_INCLUDES} ${CMAKE_REQUIRED_INCLUDES})
 
 include_directories(${MKREPORT_INCLUDES})
 
+list(APPEND MKREPORT_LIBS ${CURL_LIBRARIES})
 if("${WIN32}" OR "${MINGW}")
   list(APPEND MKREPORT_LIBS "ws2_32")
   if ("${MINGW}")
@@ -64,6 +75,8 @@ add_executable(mkreport-client mkreport-client.cpp)
 target_link_libraries(mkreport-client mkreport)
 add_executable(tests tests.cpp)
 target_link_libraries(tests mkreport)
+add_executable(integration-tests integration-tests.cpp)
+target_link_libraries(integration-tests mkreport)
 
 # Testing
 # -------
@@ -72,4 +85,5 @@ set(BUILD_TESTING "ON" CACHE BOOL "Whether to build tests")
 if(${BUILD_TESTING})
   enable_testing()
   add_test(NAME mocked_tests COMMAND tests)
+  add_test(NAME integration_tests COMMAND integration-tests)
 endif()
