@@ -55,3 +55,18 @@ TEST_CASE("Basic example of integrating third party test") {
   for (auto &s : logs) std::clog << s << std::endl;
   REQUIRE(ok);
 }
+
+TEST_CASE("Make sure that we can autodiscover a collector") {
+  mk::report::Report report;
+  report.test_name = "dummy";
+  report.test_version = "0.0.1";
+  report.ca_bundle_path = "ca-bundle.pem";
+  std::vector<std::string> logs;
+  auto ok = report.autodiscover_collector(logs);
+  for (auto &s : logs) std::clog << s << std::endl;
+  REQUIRE(ok);
+  std::clog << report.collector_base_url << std::endl;
+  std::regex re{R"(^https://[a-z].collector.ooni.io:443$)"};
+  std::smatch match;
+  REQUIRE(std::regex_match(report.collector_base_url, match, re));
+}
