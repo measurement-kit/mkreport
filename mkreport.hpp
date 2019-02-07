@@ -321,7 +321,7 @@ bool Report::close(std::vector<std::string> &logs) noexcept {
 
 Report::~Report() noexcept {
   std::vector<std::string> logs;
-  (void)close(logs);
+  (void)close(logs);  // Make sure we always close a report
 }
 
 bool Report::make_content(const Measurement &measurement, std::string &content,
