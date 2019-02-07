@@ -151,3 +151,30 @@ TEST_CASE("open works correctly") {
     REQUIRE(!report.open(logs));
   }
 }
+
+TEST_CASE("submit works correctly") {
+  SECTION("when the report is not open") {
+    std::vector<std::string> logs;
+    mk::report::Report report;
+    mk::report::Measurement measurement;
+    REQUIRE(!report.submit_measurement(measurement, logs));
+  }
+
+  SECTION("when the collector_base_url is empty") {
+    std::vector<std::string> logs;
+    mk::report::Report report;
+    report.id = "xx";
+    mk::report::Measurement measurement;
+    REQUIRE(!report.submit_measurement(measurement, logs));
+  }
+
+  SECTION("when make_content fails") {
+    mk::report::Report report;
+    report.id = "xx";
+    report.collector_base_url = "https://a.collector.ooni.io";
+    std::vector<std::string> logs;
+    mk::report::Measurement measurement;
+    measurement.test_keys = "{";  // invalid JSON
+    REQUIRE(!report.submit_measurement(measurement, logs));
+  }
+}
