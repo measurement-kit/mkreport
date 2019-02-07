@@ -84,9 +84,6 @@ class Report {
   /// test_start_time is the time when the test started.
   std::string test_start_time;
 
-  /// bouncer_base_url is the OONI bouncer base URL.
-  std::string bouncer_base_url;
-
   /// collector_base_url is the OONI collector base URL.
   std::string collector_base_url;
 
@@ -119,6 +116,20 @@ class Report {
 
   /// The move assignment will move the internal state variables.
   Report &operator=(Report &&) noexcept = delete;
+
+  /// autodiscover_collector is like autodiscover_collector_with_bouncer
+  /// except that it uses the default bouncer_base_url.
+  bool autodiscover_collector(std::vector<std::string> &logs) noexcept;
+
+  /// autodiscover_collector_with_bouncer will autodiscover and configure the
+  /// collector_base_url to the first collector returned to the bouncer by
+  /// using the @p bouncer_base_url as boucer URL. Returns true on success and
+  /// false on failure. In the latter case, please check the @p logs. Note that
+  /// if @p bouncer_base_url is empty, this function will use the default URL
+  /// for the bouncer, thereby being equivalent to autodiscover_collector.
+  bool autodiscover_collector_with_bouncer(
+      const std::string &bouncer_base_url,
+      std::vector<std::string> &logs) noexcept;
 
   /// open opens a report with the configured OONI collector. This function
   /// will return true on success and false on failure. In case of failure, you
@@ -171,6 +182,7 @@ class Report {
 
 #include "date.h"
 #include "json.hpp"
+#include "mkbouncer.hpp"
 #include "mkcollector.hpp"
 
 namespace mk {
@@ -221,6 +233,46 @@ void Measurement::stop() noexcept {
 }
 
 Report::Report() noexcept {}
+
+bool Report::autodiscover_collector(std::vector<std::string> &logs) noexcept {
+  // The canonical URL is inside mkbouncer, so let's pass an empty string
+  // to signal that we want to use the canonical URL value.
+  return autodiscover_collector_with_bouncer("", logs);
+}
+
+bool Report::autodiscover_collector_with_bouncer(
+    const std::string &bouncer_base_url,
+    std::vector<std::string> &logs) noexcept {
+  mk::bouncer::Request request;
+  request.ca_bundle_path = ca_bundle_path;
+  if (test_name.empty()) {
+    logs.push_back("The test name is empty");
+    return false;
+  }
+  request.name = test_name;
+  if (test_version.empty()) {
+    logs.push_back("The test version is empty");
+    return false;
+  }
+  request.version = test_version;
+  request.timeout = timeout;
+  if (!bouncer_base_url.empty()) {
+    request.base_url = bouncer_base_url;
+  }
+  mk::bouncer::Response response = mk::bouncer::perform(request);
+  if (!response.good) {
+    std::swap(logs, response.logs);
+    return false;
+  }
+  for (auto &record : response.collectors) {
+    if (record.type == "https") {
+      collector_base_url = record.address;
+      return true;
+    }
+  }
+  logs.push_back("cannot find any suitable https collector");
+  return false;
+}
 
 bool Report::open(std::vector<std::string> &logs) noexcept {
   if (!id.empty()) {
