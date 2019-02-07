@@ -206,10 +206,14 @@ TEST_CASE("make_content works correctly") {
   }
 
   SECTION("when we cannot serialize the complete JSON") {
+    mk::report::Measurement measurement;
     mk::report::Report report;
+    measurement.test_keys = R"({"success": true})";
     report.probe_asn = std::string{
       (char *)binary_data.data(), binary_data.size()};
     std::vector<std::string> logs;
-    REQUIRE(!report.open(logs));
+    std::string content;
+    REQUIRE(!report.make_content(measurement, content, logs));
+    for (auto &log : logs) std::clog << log << std::endl;
   }
 }
