@@ -70,3 +70,25 @@ TEST_CASE("Make sure that we can autodiscover a collector") {
   std::smatch match;
   REQUIRE(std::regex_match(report.collector_base_url, match, re));
 }
+
+TEST_CASE("Make sure that we can autodiscover probe_asn and probe_cc") {
+  mk::report::Report report;
+  report.ca_bundle_path = "ca-bundle.pem";
+  std::vector<std::string> logs;
+  auto ok = report.autodiscover_probe_asn_probe_cc(
+      "asn.mmdb", "country.mmdb", logs);
+  for (auto &s : logs) std::clog << s << std::endl;
+  REQUIRE(ok);
+  std::clog << report.probe_asn << std::endl;
+  {
+    std::regex re{R"(^AS[0-9]{1,7}$)"};
+    std::smatch match;
+    REQUIRE(std::regex_match(report.probe_asn, match, re));
+  }
+  std::clog << report.probe_cc << std::endl;
+  {
+    std::regex re{R"(^[A-Z]{2}$)"};
+    std::smatch match;
+    REQUIRE(std::regex_match(report.probe_cc, match, re));
+  }
+}
