@@ -109,10 +109,10 @@ class Report {
   Report() noexcept;
 
   /// The copy constructor will copy the internal state variables.
-  Report(const Report &) noexcept = default;
+  Report(const Report &) = default;
 
   /// The copy assignment will copy the internal state variables.
-  Report &operator=(const Report &) noexcept = default;
+  Report &operator=(const Report &) = default;
 
   /// The move constructor will move the internal state variables.
   Report(Report &&) noexcept = default;
