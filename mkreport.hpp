@@ -263,8 +263,8 @@ bool Report::autodiscover_collector_with_bouncer(
     request.base_url = bouncer_base_url;
   }
   mk::bouncer::Response response = mk::bouncer::perform(request);
+  std::swap(logs, response.logs);
   if (!response.good) {
-    std::swap(logs, response.logs);
     return false;
   }
   for (auto &record : response.collectors) {
