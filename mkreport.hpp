@@ -362,7 +362,6 @@ bool Report::make_content(const Measurement &measurement, std::string &content,
   m["software_version"] = software_version;
   m["test_helpers"] = nlohmann::json::object();
   m["test_keys"] = tk;
-  m["test_keys"]["client_resolver"] = "91.80.37.104";  // TODO(bassosimone): fix
   m["test_name"] = test_name;
   m["test_runtime"] = measurement.runtime;
   m["test_start_time"] = test_start_time;
