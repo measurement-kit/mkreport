@@ -92,3 +92,44 @@ TEST_CASE("Make sure that we can autodiscover probe_asn and probe_cc") {
     REQUIRE(std::regex_match(report.probe_cc, match, re));
   }
 }
+
+static std::string to_resubmit = R"({
+    "annotations": {
+        "engine_name": "libmeasurement_kit",
+        "engine_version": "0.9.0",
+        "engine_version_full": "v0.9.0",
+        "platform": "linux"
+    },
+    "data_format_version": "0.2.0",
+    "id": "13bc6fa8-d149-4a64-bac5-d0a444f9ba94",
+    "input": "www.kernel.org",
+    "input_hashes": [],
+    "measurement_start_time": "2019-02-08 09:52:33",
+    "options": [],
+    "probe_asn": "AS15169",
+    "probe_cc": "US",
+    "probe_city": null,
+    "probe_ip": "127.0.0.1",
+    "report_id": "20190208T095233Z_AS15169_O986SVua4krXdAnMx3aGC83INNJAo1GTZII2OwBQx2H4Qx0LKA",
+    "software_name": "measurement_kit",
+    "software_version": "0.9.0",
+    "test_helpers": {},
+    "test_keys": {
+        "client_resolver": "172.217.33.130",
+        "connection": "success"
+    },
+    "test_name": "tcp_connect",
+    "test_runtime": 0.039698123931884766,
+    "test_start_time": "2019-02-08 09:52:31",
+    "test_version": "0.1.0"
+})";
+
+TEST_CASE("Make sure that we can resubmit a measurement") {
+  std::vector<std::string> logs;
+  std::string id;
+  auto ok = mk::report::resubmit_measurement(
+        to_resubmit, "ca-bundle.pem", 30, logs, id);
+  for (auto &s : logs) std::clog << s << std::endl;
+  REQUIRE(ok);
+  REQUIRE(!id.empty());
+}

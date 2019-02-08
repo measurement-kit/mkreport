@@ -537,6 +537,7 @@ bool resubmit_measurement(
     doc.at("software_version").get_to(report.software_version);
     doc.at("test_name").get_to(report.test_name);
     doc.at("test_version").get_to(report.test_version);
+    doc.at("test_start_time").get_to(report.test_start_time);
   } catch (const std::exception &exc) {
     logs.push_back(exc.what());
     return false;
