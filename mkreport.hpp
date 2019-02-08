@@ -550,6 +550,7 @@ bool resubmit_measurement(
   }
   // Step 3: discover the best collector to use using the bouncer.
   auto ok = report.autodiscover_collector(logs);
+  MKREPORT_HOOK(report_autodiscover_collector, ok);
   if (!ok) {
     return false;
   }
@@ -562,11 +563,13 @@ bool resubmit_measurement(
   std::swap(ca_bundle_path, report.ca_bundle_path);
   report.timeout = timeout;
   ok = report.open(logs);
+  MKREPORT_HOOK(report_open, ok);
   if (!ok) {
     return false;
   }
   // Step 5: unconditionally overwrite the report ID and record it such
   // that the app can update its internal database.
+  MKREPORT_HOOK(report_id, report.id);
   doc["report_id"] = report.id;
   id = report.id;
   // Step 6: reserialize the measurement
@@ -579,6 +582,7 @@ bool resubmit_measurement(
   }
   // Step 7: submit the measurement within this report.
   ok = report.submit_measurement_json(std::move(modified_measurement), logs);
+  MKREPORT_HOOK(report_submit_measurement_json, ok);
   if (!ok) {
     return false;
   }

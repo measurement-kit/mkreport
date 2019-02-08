@@ -23,6 +23,10 @@ MKMOCK_DEFINE_HOOK(
 MKMOCK_DEFINE_HOOK(iplookup_response_good, bool);
 MKMOCK_DEFINE_HOOK(mmdb_asn_lookup, bool);
 MKMOCK_DEFINE_HOOK(mmdb_cc_lookup, bool);
+MKMOCK_DEFINE_HOOK(report_autodiscover_collector, bool);
+MKMOCK_DEFINE_HOOK(report_open, bool);
+MKMOCK_DEFINE_HOOK(report_id, std::string);
+MKMOCK_DEFINE_HOOK(report_submit_measurement_json, bool);
 
 #define MKREPORT_MOCK
 #define MKREPORT_INLINE_IMPL
@@ -280,6 +284,37 @@ TEST_CASE("submit_measurement_internal works correctly") {
   }
 }
 
+static std::string sample_report = R"({
+    "annotations": {
+        "engine_name": "libmeasurement_kit",
+        "engine_version": "0.9.0",
+        "engine_version_full": "v0.9.0",
+        "platform": "linux"
+    },
+    "data_format_version": "0.2.0",
+    "id": "13bc6fa8-d149-4a64-bac5-d0a444f9ba94",
+    "input": "www.kernel.org",
+    "input_hashes": [],
+    "measurement_start_time": "2018-02-08 09:52:33",
+    "options": [],
+    "probe_asn": "AS15169",
+    "probe_cc": "US",
+    "probe_city": null,
+    "probe_ip": "127.0.0.1",
+    "report_id": "20180208T095233Z_AS15169_O986SVua4krXdAnMx3aGC83INNJAo1GTZII2OwBQx2H4Qx0LKA",
+    "software_name": "measurement_kit",
+    "software_version": "0.9.0",
+    "test_helpers": {},
+    "test_keys": {
+        "client_resolver": "172.217.33.130",
+        "connection": "success"
+    },
+    "test_name": "tcp_connect",
+    "test_runtime": 0.039698123931884766,
+    "test_start_time": "2018-02-08 09:52:31",
+    "test_version": "0.1.0"
+})";
+
 TEST_CASE("resubmit_measurement works correctly") {
   SECTION("when the JSON does not parse") {
     std::vector<std::string> logs;
@@ -295,5 +330,46 @@ TEST_CASE("resubmit_measurement works correctly") {
     auto ok = mk::report::resubmit_measurement(
         "{}", "ca-bundle.pem", 30, logs, id);
     REQUIRE(!ok);
+  }
+
+  SECTION("when we cannot autodiscover a suitable collector") {
+    MKMOCK_WITH_ENABLED_HOOK(report_autodiscover_collector, false, {
+      std::vector<std::string> logs;
+      std::string id;
+      auto ok = mk::report::resubmit_measurement(
+          sample_report, "ca-bundle.pem", 30, logs, id);
+      REQUIRE(!ok);
+    });
+  }
+
+  SECTION("when we cannot open a report") {
+    MKMOCK_WITH_ENABLED_HOOK(report_open, false, {
+      std::vector<std::string> logs;
+      std::string id;
+      auto ok = mk::report::resubmit_measurement(
+          sample_report, "ca-bundle.pem", 30, logs, id);
+      REQUIRE(!ok);
+    });
+  }
+
+  SECTION("when the report ID is not JSON serializable") {
+    std::string bad_id{(char *)binary_data.data(), binary_data.size()};
+    MKMOCK_WITH_ENABLED_HOOK(report_id, bad_id, {
+      std::vector<std::string> logs;
+      std::string id;
+      auto ok = mk::report::resubmit_measurement(
+          sample_report, "ca-bundle.pem", 30, logs, id);
+      REQUIRE(!ok);
+    });
+  }
+
+  SECTION("when we cannot submit a measurement") {
+    MKMOCK_WITH_ENABLED_HOOK(report_submit_measurement_json, false, {
+      std::vector<std::string> logs;
+      std::string id;
+      auto ok = mk::report::resubmit_measurement(
+          sample_report, "ca-bundle.pem", 30, logs, id);
+      REQUIRE(!ok);
+    });
   }
 }
