@@ -149,6 +149,11 @@ class Report {
   bool submit_measurement(
       Measurement measurement, std::vector<std::string> &logs) noexcept;
 
+  /// submit_measurement_json is like submit_measurement except that we have
+  /// in input an already well formed measurement as JSON.
+  bool submit_measurement_json(
+      std::string measurement, std::vector<std::string> &logs) noexcept;
+
   /// close closes the report with the OONI collector. This function will
   /// return true on success and false on failure. In case of failure, you
   /// SHOULD inspect the @p logs, which will explain what went wrong. The
@@ -170,6 +175,16 @@ class Report {
   bool make_content(const Measurement &measurement, std::string &content,
                     std::vector<std::string> &logs) noexcept;
 };
+
+/// resubmit_measurement resubmits the @p serialized_json measurement using
+/// the discovered collector. The @p ca_bundle_path and @p timeout arguments
+/// have the usual nonsurprising meaning. This function will submit the report
+/// overwriting any previous report ID. Returns a boolean indicating whether
+/// we succeded. Check the @p logs on failure. Check the value of @p id to
+/// know what is the new report ID for this measurement.
+bool resubmit_measurement(
+    std::string serialized_json, std::string ca_bundle_path,
+    int64_t timeout, std::vector<std::string> &logs, std::string &id) noexcept;
 
 }  // namespace report
 }  // namespace mk
@@ -379,27 +394,50 @@ bool Report::open(std::vector<std::string> &logs) noexcept {
   return response.good;
 }
 
-bool Report::submit_measurement(
-    Measurement measurement, std::vector<std::string> &logs) noexcept {
+// submit_measurement_internal submits an already configurd measurement
+// by settings its report ID to @p id. It will use the provided @p
+// collector_base_url, @p ca_bundle_path, and @p timeout to configure
+// the collector client. Returns a boolean and, as usual, stores in
+// @p logs any relevant diagnostic information.
+static bool submit_measurement_internal(
+    mk::collector::UpdateRequest request, const std::string &id,
+    const std::string &collector_base_url, const std::string &ca_bundle_path,
+    int64_t timeout, std::vector<std::string> &logs) noexcept {
   if (id.empty()) {
     logs.push_back("No configured report ID.");
     return false;
   }
-  mk::collector::UpdateRequest request;
   request.report_id = id;
   if (collector_base_url.empty()) {
     logs.push_back("No configured collector_base_url.");
     return false;
   }
   request.base_url = collector_base_url;
-  if (!make_content(measurement, request.content, logs)) {
-    return false;
-  }
   request.ca_bundle_path = ca_bundle_path;
   request.timeout = timeout;
   mk::collector::UpdateResponse response = mk::collector::update(request);
   std::swap(logs, response.logs);
   return response.good;
+}
+
+bool Report::submit_measurement(
+    Measurement measurement, std::vector<std::string> &logs) noexcept {
+  mk::collector::UpdateRequest request;
+  if (!make_content(measurement, request.content, logs)) {
+    return false;
+  }
+  return submit_measurement_internal(
+      std::move(request), id, collector_base_url, ca_bundle_path,
+      timeout, logs);
+}
+
+bool Report::submit_measurement_json(
+    std::string measurement, std::vector<std::string> &logs) noexcept {
+  mk::collector::UpdateRequest request;
+  std::swap(measurement, request.content);
+  return submit_measurement_internal(
+      std::move(request), id, collector_base_url, ca_bundle_path,
+      timeout, logs);
 }
 
 bool Report::close(std::vector<std::string> &logs) noexcept {
@@ -477,6 +515,68 @@ bool Report::make_content(const Measurement &measurement, std::string &content,
     return false;
   }
   return true;
+}
+
+bool resubmit_measurement(
+    std::string serialized_json, std::string ca_bundle_path,
+    int64_t timeout, std::vector<std::string> &logs, std::string &id) noexcept {
+  // Step 1: parse the measurement.
+  nlohmann::json doc;
+  try {
+    doc = nlohmann::json::parse(serialized_json);
+  } catch (const std::exception &exc) {
+    logs.push_back(exc.what());
+    return false;
+  }
+  // Step 2: initialize a new report from the measurement.
+  Report report;
+  try {
+    doc.at("probe_asn").get_to(report.probe_asn);
+    doc.at("probe_cc").get_to(report.probe_cc);
+    doc.at("software_name").get_to(report.software_name);
+    doc.at("software_version").get_to(report.software_version);
+    doc.at("test_name").get_to(report.test_name);
+    doc.at("test_version").get_to(report.test_version);
+  } catch (const std::exception &exc) {
+    logs.push_back(exc.what());
+    return false;
+  }
+  // Step 3: discover the best collector to use using the bouncer.
+  auto ok = report.autodiscover_collector(logs);
+  if (!ok) {
+    return false;
+  }
+  // Step 4: open a new report just for this measurement. (We could choose
+  // to have a single report for many measurements, but this seems to be
+  // tricky for an app, because they would need to make sure that each entry
+  // that they submit to us is in the same report; plus, they could perform
+  // such an action already with the existing API provided that they make
+  // sure they overwrite the report ID.)
+  std::swap(ca_bundle_path, report.ca_bundle_path);
+  report.timeout = timeout;
+  ok = report.open(logs);
+  if (!ok) {
+    return false;
+  }
+  // Step 5: unconditionally overwrite the report ID and record it such
+  // that the app can update its internal database.
+  doc["report_id"] = report.id;
+  id = report.id;
+  // Step 6: reserialize the measurement
+  std::string modified_measurement;
+  try {
+    modified_measurement = doc.dump();
+  } catch (const std::exception &exc) {
+    logs.push_back(exc.what());
+    return false;
+  }
+  // Step 7: submit the measurement within this report.
+  ok = report.submit_measurement_json(std::move(modified_measurement), logs);
+  if (!ok) {
+    return false;
+  }
+  // Step 8: close the report.
+  return report.close(logs);
 }
 
 }  // namespace report
