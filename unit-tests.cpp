@@ -263,3 +263,19 @@ TEST_CASE("make_content works correctly") {
     for (auto &log : logs) std::clog << log << std::endl;
   }
 }
+
+TEST_CASE("submit_measurement_internal works correctly") {
+  SECTION("when the report ID is empty") {
+    mk::collector::UpdateRequest r;
+    std::vector<std::string> logs;
+    REQUIRE(!mk::report::submit_measurement_internal(
+          std::move(r), "", "", "", 30, logs));
+  }
+
+  SECTION("when the collector base URL is empty") {
+    mk::collector::UpdateRequest r;
+    std::vector<std::string> logs;
+    REQUIRE(!mk::report::submit_measurement_internal(
+          std::move(r), "xx", "", "", 30, logs));
+  }
+}
