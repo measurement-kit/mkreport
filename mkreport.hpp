@@ -186,7 +186,17 @@ class Report {
 #include "mkbouncer.hpp"
 #include "mkcollector.hpp"
 #include "mkiplookup.hpp"
+#include "mkmock.hpp"
 #include "mkmmdb.hpp"
+
+// MKREPORT_MOCK controls whether to enable mocking
+#ifdef MKREPORT_MOCK
+#define MKREPORT_HOOK MKMOCK_HOOK_ENABLED
+#define MKREPORT_HOOK_ALLOC MKMOCK_HOOK_ALLOC_ENABLED
+#else
+#define MKREPORT_HOOK MKMOCK_HOOK_DISABLED
+#define MKREPORT_HOOK_ALLOC MKMOCK_HOOK_ALLOC_DISABLED
+#endif
 
 namespace mk {
 namespace report {
@@ -267,6 +277,7 @@ bool Report::autodiscover_collector_with_bouncer(
   if (!response.good) {
     return false;
   }
+  MKREPORT_HOOK(bouncer_response_collectors, response.collectors);
   for (auto &record : response.collectors) {
     if (record.type == "https") {
       collector_base_url = record.address;
@@ -285,6 +296,7 @@ bool Report::autodiscover_probe_asn_probe_cc(
   request.timeout = timeout;
   mk::iplookup::Response response = mk::iplookup::perform(request);
   std::swap(logs, response.logs);
+  MKREPORT_HOOK(iplookup_response_good, response.good);
   if (!response.good) {
     return false;
   }
@@ -293,7 +305,9 @@ bool Report::autodiscover_probe_asn_probe_cc(
     if (!handle.open(asn_db_path, logs)) {
       return false;
     }
-    if (!handle.lookup_asn2(response.probe_ip, probe_asn, logs)) {
+    bool ok = handle.lookup_asn2(response.probe_ip, probe_asn, logs);
+    MKREPORT_HOOK(mmdb_asn_lookup, ok);
+    if (!ok) {
       return false;
     }
   }
@@ -302,7 +316,9 @@ bool Report::autodiscover_probe_asn_probe_cc(
     if (!handle.open(country_db_path, logs)) {
       return false;
     }
-    if (!handle.lookup_cc(response.probe_ip, probe_cc, logs)) {
+    auto ok = handle.lookup_cc(response.probe_ip, probe_cc, logs);
+    MKREPORT_HOOK(mmdb_cc_lookup, ok);
+    if (!ok) {
       return false;
     }
   }

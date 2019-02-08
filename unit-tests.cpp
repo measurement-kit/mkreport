@@ -1,9 +1,4 @@
-#include <chrono>
-#include <iostream>
-#include <thread>
-
-#define CATCH_CONFIG_MAIN
-#include "catch.hpp"
+#include "mkmock.hpp"
 
 #define MKCURL_INLINE_IMPL
 #include "mkcurl.hpp"
@@ -23,8 +18,22 @@
 #define MKMMDB_INLINE_IMPL
 #include "mkmmdb.hpp"
 
+MKMOCK_DEFINE_HOOK(
+    bouncer_response_collectors, std::vector<mk::bouncer::Record>);
+MKMOCK_DEFINE_HOOK(iplookup_response_good, bool);
+MKMOCK_DEFINE_HOOK(mmdb_asn_lookup, bool);
+MKMOCK_DEFINE_HOOK(mmdb_cc_lookup, bool);
+
+#define MKREPORT_MOCK
 #define MKREPORT_INLINE_IMPL
 #include "mkreport.hpp"
+
+#define CATCH_CONFIG_MAIN
+#include "catch.hpp"
+
+#include <chrono>
+#include <iostream>
+#include <thread>
 
 TEST_CASE("autodiscover_collector_with_bouncer works correctly") {
   SECTION("when the test name is empty") {
@@ -49,9 +58,28 @@ TEST_CASE("autodiscover_collector_with_bouncer works correctly") {
     std::string base_url = "https://bouncer.ooni.io/nonexistent";
     REQUIRE(!report.autodiscover_collector_with_bouncer(base_url, logs));
   }
+
+  SECTION("with no available collectors") {
+    MKMOCK_WITH_ENABLED_HOOK(bouncer_response_collectors, {}, {
+      std::vector<std::string> logs;
+      mk::report::Report report;
+      report.test_name = "dummy";
+      report.test_version = "0.0.1";
+      REQUIRE(!report.autodiscover_collector_with_bouncer("", logs));
+    });
+  }
 }
 
 TEST_CASE("autodiscover_probe_asn_probe_cc works correctly") {
+  SECTION("with an error while discovering the IP address") {
+    MKMOCK_WITH_ENABLED_HOOK(iplookup_response_good, false, {
+      mk::report::Report report;
+      std::vector<std::string> logs;
+      REQUIRE(!report.autodiscover_probe_asn_probe_cc(
+              "asn.mmdb", "country.mmdb", logs));
+    });
+  }
+
   SECTION("with an invalid ASN DB") {
     mk::report::Report report;
     std::vector<std::string> logs;
@@ -59,11 +87,29 @@ TEST_CASE("autodiscover_probe_asn_probe_cc works correctly") {
           "nonexistent.mmdb", "country.mmdb", logs));
   }
 
+  SECTION("with an error while querying the ASN DB") {
+    MKMOCK_WITH_ENABLED_HOOK(mmdb_asn_lookup, false, {
+      mk::report::Report report;
+      std::vector<std::string> logs;
+      REQUIRE(!report.autodiscover_probe_asn_probe_cc(
+              "asn.mmdb", "country.mmdb", logs));
+    });
+  }
+
   SECTION("with an invalid country DB") {
     mk::report::Report report;
     std::vector<std::string> logs;
     REQUIRE(!report.autodiscover_probe_asn_probe_cc(
           "asn.mmdb", "nonexistent.mmdb", logs));
+  }
+
+  SECTION("with an error while querying the country DB") {
+    MKMOCK_WITH_ENABLED_HOOK(mmdb_cc_lookup, false, {
+      mk::report::Report report;
+      std::vector<std::string> logs;
+      REQUIRE(!report.autodiscover_probe_asn_probe_cc(
+              "asn.mmdb", "country.mmdb", logs));
+    });
   }
 }
 
