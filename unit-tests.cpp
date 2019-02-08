@@ -1,3 +1,9 @@
+// NOMINMAX is a workaround so that windows.h does no define the `min`
+// and `max` macros that conflict with the STL.
+#ifdef _WIN32
+#define NOMINMAX
+#endif
+
 #include "mkmock.hpp"
 
 #define MKCURL_INLINE_IMPL
