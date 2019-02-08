@@ -279,3 +279,21 @@ TEST_CASE("submit_measurement_internal works correctly") {
           std::move(r), "xx", "", "", 30, logs));
   }
 }
+
+TEST_CASE("resubmit_measurement works correctly") {
+  SECTION("when the JSON does not parse") {
+    std::vector<std::string> logs;
+    std::string id;
+    auto ok = mk::report::resubmit_measurement(
+        "{", "ca-bundle.pem", 30, logs, id);
+    REQUIRE(!ok);
+  }
+
+  SECTION("when the JSON does not contain all required fields") {
+    std::vector<std::string> logs;
+    std::string id;
+    auto ok = mk::report::resubmit_measurement(
+        "{}", "ca-bundle.pem", 30, logs, id);
+    REQUIRE(!ok);
+  }
+}
