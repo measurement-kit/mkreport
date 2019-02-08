@@ -268,6 +268,12 @@ bool Report::autodiscover_collector(std::vector<std::string> &logs) noexcept {
   return autodiscover_collector_with_bouncer("", logs);
 }
 
+// append_to_logs appends @p partial to @p full.
+static void append_to_logs(std::vector<std::string> &full,
+                           std::vector<std::string> &&partial) noexcept {
+  full.insert(full.end(), partial.begin(), partial.end());
+}
+
 bool Report::autodiscover_collector_with_bouncer(
     const std::string &bouncer_base_url,
     std::vector<std::string> &logs) noexcept {
@@ -288,7 +294,7 @@ bool Report::autodiscover_collector_with_bouncer(
     request.base_url = bouncer_base_url;
   }
   mk::bouncer::Response response = mk::bouncer::perform(request);
-  std::swap(logs, response.logs);
+  append_to_logs(logs, std::move(response.logs));
   if (!response.good) {
     return false;
   }
@@ -310,7 +316,7 @@ bool Report::autodiscover_probe_asn_probe_cc(
   request.ca_bundle_path = ca_bundle_path;
   request.timeout = timeout;
   mk::iplookup::Response response = mk::iplookup::perform(request);
-  std::swap(logs, response.logs);
+  append_to_logs(logs, std::move(response.logs));
   MKREPORT_HOOK(iplookup_response_good, response.good);
   if (!response.good) {
     return false;
@@ -389,7 +395,7 @@ bool Report::open(std::vector<std::string> &logs) noexcept {
   request.ca_bundle_path = ca_bundle_path;
   request.timeout = timeout;
   mk::collector::OpenResponse response = mk::collector::open(request);
-  std::swap(logs, response.logs);
+  append_to_logs(logs, std::move(response.logs));
   std::swap(id, response.report_id);
   return response.good;
 }
@@ -416,7 +422,7 @@ static bool submit_measurement_internal(
   request.ca_bundle_path = ca_bundle_path;
   request.timeout = timeout;
   mk::collector::UpdateResponse response = mk::collector::update(request);
-  std::swap(logs, response.logs);
+  append_to_logs(logs, std::move(response.logs));
   return response.good;
 }
 
@@ -455,7 +461,7 @@ bool Report::close(std::vector<std::string> &logs) noexcept {
   request.ca_bundle_path = ca_bundle_path;
   request.timeout = timeout;
   mk::collector::CloseResponse response = mk::collector::close(request);
-  std::swap(logs, response.logs);
+  append_to_logs(logs, std::move(response.logs));
   id = "";  // Clear the report ID as this report is now closed
   return response.good;
 }

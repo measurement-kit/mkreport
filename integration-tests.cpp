@@ -104,13 +104,13 @@ static std::string to_resubmit = R"({
     "id": "13bc6fa8-d149-4a64-bac5-d0a444f9ba94",
     "input": "www.kernel.org",
     "input_hashes": [],
-    "measurement_start_time": "2019-02-08 09:52:33",
+    "measurement_start_time": "2018-02-08 09:52:33",
     "options": [],
     "probe_asn": "AS15169",
     "probe_cc": "US",
     "probe_city": null,
     "probe_ip": "127.0.0.1",
-    "report_id": "20190208T095233Z_AS15169_O986SVua4krXdAnMx3aGC83INNJAo1GTZII2OwBQx2H4Qx0LKA",
+    "report_id": "20180208T095233Z_AS15169_O986SVua4krXdAnMx3aGC83INNJAo1GTZII2OwBQx2H4Qx0LKA",
     "software_name": "measurement_kit",
     "software_version": "0.9.0",
     "test_helpers": {},
@@ -120,7 +120,7 @@ static std::string to_resubmit = R"({
     },
     "test_name": "tcp_connect",
     "test_runtime": 0.039698123931884766,
-    "test_start_time": "2019-02-08 09:52:31",
+    "test_start_time": "2018-02-08 09:52:31",
     "test_version": "0.1.0"
 })";
 
