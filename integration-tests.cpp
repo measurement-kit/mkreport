@@ -35,7 +35,7 @@ TEST_CASE("Basic example of integrating third party test") {
   report.test_version = "0.0.1";
   report.test_start_time = mk::report::ooni_date_now();
   report.collector_base_url = "https://collector-sandbox.ooni.io";
-  report.ca_bundle_path = "ca-bundle.pem";
+  report.ca_bundle_path = ".mkbuild/download/ca-bundle.pem";
   std::vector<std::string> logs;
   auto ok = report.open(logs);
   for (auto &s : logs) std::clog << s << std::endl;
@@ -60,7 +60,7 @@ TEST_CASE("Make sure that we can autodiscover a collector") {
   mk::report::Report report;
   report.test_name = "dummy";
   report.test_version = "0.0.1";
-  report.ca_bundle_path = "ca-bundle.pem";
+  report.ca_bundle_path = ".mkbuild/download/ca-bundle.pem";
   std::vector<std::string> logs;
   auto ok = report.autodiscover_collector(logs);
   for (auto &s : logs) std::clog << s << std::endl;
@@ -73,10 +73,10 @@ TEST_CASE("Make sure that we can autodiscover a collector") {
 
 TEST_CASE("Make sure that we can autodiscover probe_asn and probe_cc") {
   mk::report::Report report;
-  report.ca_bundle_path = "ca-bundle.pem";
+  report.ca_bundle_path = ".mkbuild/download/ca-bundle.pem";
   std::vector<std::string> logs;
   auto ok = report.autodiscover_probe_asn_probe_cc(
-      "asn.mmdb", "country.mmdb", logs);
+      ".mkbuild/download/asn.mmdb", ".mkbuild/download/country.mmdb", logs);
   for (auto &s : logs) std::clog << s << std::endl;
   REQUIRE(ok);
   std::clog << report.probe_asn << std::endl;
@@ -128,7 +128,7 @@ TEST_CASE("Make sure that we can resubmit a measurement") {
   std::vector<std::string> logs;
   std::string id;
   auto ok = mk::report::resubmit_measurement(
-        to_resubmit, "ca-bundle.pem", 30, logs, id);
+        to_resubmit, ".mkbuild/download/ca-bundle.pem", 30, logs, id);
   for (auto &s : logs) std::clog << s << std::endl;
   REQUIRE(ok);
   REQUIRE(!id.empty());

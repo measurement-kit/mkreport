@@ -86,7 +86,8 @@ TEST_CASE("autodiscover_probe_asn_probe_cc works correctly") {
       mk::report::Report report;
       std::vector<std::string> logs;
       REQUIRE(!report.autodiscover_probe_asn_probe_cc(
-              "asn.mmdb", "country.mmdb", logs));
+              ".mkbuild/download/asn.mmdb",
+              ".mkbuild/download/country.mmdb", logs));
     });
   }
 
@@ -94,7 +95,7 @@ TEST_CASE("autodiscover_probe_asn_probe_cc works correctly") {
     mk::report::Report report;
     std::vector<std::string> logs;
     REQUIRE(!report.autodiscover_probe_asn_probe_cc(
-          "nonexistent.mmdb", "country.mmdb", logs));
+          "nonexistent.mmdb", ".mkbuild/download/country.mmdb", logs));
   }
 
   SECTION("with an error while querying the ASN DB") {
@@ -102,7 +103,8 @@ TEST_CASE("autodiscover_probe_asn_probe_cc works correctly") {
       mk::report::Report report;
       std::vector<std::string> logs;
       REQUIRE(!report.autodiscover_probe_asn_probe_cc(
-              "asn.mmdb", "country.mmdb", logs));
+              ".mkbuild/download/asn.mmdb",
+              ".mkbuild/download/country.mmdb", logs));
     });
   }
 
@@ -110,7 +112,7 @@ TEST_CASE("autodiscover_probe_asn_probe_cc works correctly") {
     mk::report::Report report;
     std::vector<std::string> logs;
     REQUIRE(!report.autodiscover_probe_asn_probe_cc(
-          "asn.mmdb", "nonexistent.mmdb", logs));
+          ".mkbuild/download/asn.mmdb", "nonexistent.mmdb", logs));
   }
 
   SECTION("with an error while querying the country DB") {
@@ -118,7 +120,8 @@ TEST_CASE("autodiscover_probe_asn_probe_cc works correctly") {
       mk::report::Report report;
       std::vector<std::string> logs;
       REQUIRE(!report.autodiscover_probe_asn_probe_cc(
-              "asn.mmdb", "country.mmdb", logs));
+              ".mkbuild/download/asn.mmdb",
+              ".mkbuild/download/country.mmdb", logs));
     });
   }
 }
@@ -326,7 +329,7 @@ TEST_CASE("resubmit_measurement works correctly") {
     std::vector<std::string> logs;
     std::string id;
     auto ok = mk::report::resubmit_measurement(
-        "{", "ca-bundle.pem", 30, logs, id);
+        "{", ".mkbuild/download/ca-bundle.pem", 30, logs, id);
     REQUIRE(!ok);
   }
 
@@ -334,7 +337,7 @@ TEST_CASE("resubmit_measurement works correctly") {
     std::vector<std::string> logs;
     std::string id;
     auto ok = mk::report::resubmit_measurement(
-        "{}", "ca-bundle.pem", 30, logs, id);
+        "{}", ".mkbuild/download/ca-bundle.pem", 30, logs, id);
     REQUIRE(!ok);
   }
 
@@ -343,7 +346,7 @@ TEST_CASE("resubmit_measurement works correctly") {
       std::vector<std::string> logs;
       std::string id;
       auto ok = mk::report::resubmit_measurement(
-          sample_report, "ca-bundle.pem", 30, logs, id);
+          sample_report, ".mkbuild/download/ca-bundle.pem", 30, logs, id);
       REQUIRE(!ok);
     });
   }
@@ -353,7 +356,7 @@ TEST_CASE("resubmit_measurement works correctly") {
       std::vector<std::string> logs;
       std::string id;
       auto ok = mk::report::resubmit_measurement(
-          sample_report, "ca-bundle.pem", 30, logs, id);
+          sample_report, ".mkbuild/download/ca-bundle.pem", 30, logs, id);
       REQUIRE(!ok);
     });
   }
@@ -364,7 +367,7 @@ TEST_CASE("resubmit_measurement works correctly") {
       std::vector<std::string> logs;
       std::string id;
       auto ok = mk::report::resubmit_measurement(
-          sample_report, "ca-bundle.pem", 30, logs, id);
+          sample_report, ".mkbuild/download/ca-bundle.pem", 30, logs, id);
       REQUIRE(!ok);
     });
   }
@@ -374,7 +377,7 @@ TEST_CASE("resubmit_measurement works correctly") {
       std::vector<std::string> logs;
       std::string id;
       auto ok = mk::report::resubmit_measurement(
-          sample_report, "ca-bundle.pem", 30, logs, id);
+          sample_report, ".mkbuild/download/ca-bundle.pem", 30, logs, id);
       REQUIRE(!ok);
     });
   }
