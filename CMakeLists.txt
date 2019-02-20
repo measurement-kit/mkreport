@@ -61,55 +61,6 @@ if(NOT ("${MK_HAVE_HEADER_1677}"))
   message(FATAL_ERROR "cannot find: catch.hpp")
 endif()
 
-if(("${WIN32}"))
-
-  #
-  # windows-curl-7.61.1-1.tar.gz
-  #
-
-  message(STATUS "mkdirAll: ${CMAKE_BINARY_DIR}/.mkbuild/download")
-  execute_process(COMMAND
-    ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/.mkbuild/download"
-    RESULT_VARIABLE FAILURE_2058)
-  if("${FAILURE_2058}")
-    message(FATAL_ERROR "${FAILURE_2058}")
-  endif()
-  message(STATUS "download: https://github.com/measurement-kit/prebuilt/releases/download//testing/windows-curl-7.61.1-1.tar.gz")
-  file(DOWNLOAD https://github.com/measurement-kit/prebuilt/releases/download//testing/windows-curl-7.61.1-1.tar.gz
-    "${CMAKE_BINARY_DIR}/.mkbuild/download/windows-curl-7.61.1-1.tar.gz"
-    EXPECTED_HASH SHA256=424d2f18f0f74dd6a0128f0f4e59860b7d2f00c80bbf24b2702e9cac661357cf
-    TLS_VERIFY ON)
-  message(STATUS "Extract: ${CMAKE_BINARY_DIR}/.mkbuild/download/windows-curl-7.61.1-1.tar.gz")
-  execute_process(COMMAND
-    ${CMAKE_COMMAND} -E tar xf "${CMAKE_BINARY_DIR}/.mkbuild/download/windows-curl-7.61.1-1.tar.gz"
-    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/.mkbuild/download"
-    RESULT_VARIABLE FAILURE_2881)
-  if("${FAILURE_2881}")
-    message(FATAL_ERROR "${FAILURE_2881}")
-  endif()
-  LIST(APPEND CMAKE_REQUIRED_INCLUDES "${CMAKE_BINARY_DIR}/.mkbuild/download/MK_DIST/windows/curl/7.61.1-1/${MK_WIN32_ARCH}/include")
-  CHECK_INCLUDE_FILE_CXX("curl/curl.h" MK_HAVE_HEADER_3126)
-  if(NOT ("${MK_HAVE_HEADER_3126}"))
-    message(FATAL_ERROR "cannot find: curl/curl.h")
-  endif()
-  CHECK_LIBRARY_EXISTS("${CMAKE_BINARY_DIR}/.mkbuild/download/MK_DIST/windows/curl/7.61.1-1/${MK_WIN32_ARCH}/lib/libcurl.lib" "curl_easy_init" "" MK_HAVE_LIB_3285)
-  if(NOT ("${MK_HAVE_LIB_3285}"))
-    message(FATAL_ERROR "cannot find: ${CMAKE_BINARY_DIR}/.mkbuild/download/MK_DIST/windows/curl/7.61.1-1/${MK_WIN32_ARCH}/lib/libcurl.lib")
-  endif()
-  LIST(APPEND CMAKE_REQUIRED_LIBRARIES "${CMAKE_BINARY_DIR}/.mkbuild/download/MK_DIST/windows/curl/7.61.1-1/${MK_WIN32_ARCH}/lib/libcurl.lib")
-  LIST(APPEND CMAKE_REQUIRED_DEFINITIONS -DCURL_STATICLIB)
-else()
-  CHECK_INCLUDE_FILE_CXX("curl/curl.h" MK_HAVE_HEADER_3843)
-  if(NOT ("${MK_HAVE_HEADER_3843}"))
-    message(FATAL_ERROR "cannot find: curl/curl.h")
-  endif()
-  CHECK_LIBRARY_EXISTS("curl" "curl_easy_init" "" MK_HAVE_LIB_4002)
-  if(NOT ("${MK_HAVE_LIB_4002}"))
-    message(FATAL_ERROR "cannot find: curl")
-  endif()
-  LIST(APPEND CMAKE_REQUIRED_LIBRARIES "curl")
-endif()
-
 #
 # date.h
 #
@@ -117,9 +68,9 @@ endif()
 message(STATUS "mkdirAll: ${CMAKE_BINARY_DIR}/.mkbuild/include")
 execute_process(COMMAND
   ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/.mkbuild/include"
-  RESULT_VARIABLE FAILURE_4394)
-if("${FAILURE_4394}")
-  message(FATAL_ERROR "${FAILURE_4394}")
+  RESULT_VARIABLE FAILURE_2004)
+if("${FAILURE_2004}")
+  message(FATAL_ERROR "${FAILURE_2004}")
 endif()
 message(STATUS "download: https://raw.githubusercontent.com/HowardHinnant/date/v2.4.1/include/date/date.h")
 file(DOWNLOAD https://raw.githubusercontent.com/HowardHinnant/date/v2.4.1/include/date/date.h
@@ -127,236 +78,9 @@ file(DOWNLOAD https://raw.githubusercontent.com/HowardHinnant/date/v2.4.1/includ
   EXPECTED_HASH SHA256=07aa75752540023ccccab178ed193f536c9d032cbbda997159af9f339d331eda
   TLS_VERIFY ON)
 LIST(APPEND CMAKE_REQUIRED_INCLUDES "${CMAKE_BINARY_DIR}/.mkbuild/include")
-CHECK_INCLUDE_FILE_CXX("date.h" MK_HAVE_HEADER_4928)
-if(NOT ("${MK_HAVE_HEADER_4928}"))
+CHECK_INCLUDE_FILE_CXX("date.h" MK_HAVE_HEADER_2538)
+if(NOT ("${MK_HAVE_HEADER_2538}"))
   message(FATAL_ERROR "cannot find: date.h")
-endif()
-
-if(("${WIN32}"))
-
-  #
-  # windows-libmaxminddb-1.3.2-2.tar.gz
-  #
-
-  message(STATUS "mkdirAll: ${CMAKE_BINARY_DIR}/.mkbuild/download")
-  execute_process(COMMAND
-    ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/.mkbuild/download"
-    RESULT_VARIABLE FAILURE_5310)
-  if("${FAILURE_5310}")
-    message(FATAL_ERROR "${FAILURE_5310}")
-  endif()
-  message(STATUS "download: https://github.com/measurement-kit/prebuilt/releases/download//testing/windows-libmaxminddb-1.3.2-2.tar.gz")
-  file(DOWNLOAD https://github.com/measurement-kit/prebuilt/releases/download//testing/windows-libmaxminddb-1.3.2-2.tar.gz
-    "${CMAKE_BINARY_DIR}/.mkbuild/download/windows-libmaxminddb-1.3.2-2.tar.gz"
-    EXPECTED_HASH SHA256=542933912814ac518037bd26083d0bba9daf68084f43c5cf2d7ec944d62b9ebb
-    TLS_VERIFY ON)
-  message(STATUS "Extract: ${CMAKE_BINARY_DIR}/.mkbuild/download/windows-libmaxminddb-1.3.2-2.tar.gz")
-  execute_process(COMMAND
-    ${CMAKE_COMMAND} -E tar xf "${CMAKE_BINARY_DIR}/.mkbuild/download/windows-libmaxminddb-1.3.2-2.tar.gz"
-    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/.mkbuild/download"
-    RESULT_VARIABLE FAILURE_6168)
-  if("${FAILURE_6168}")
-    message(FATAL_ERROR "${FAILURE_6168}")
-  endif()
-  LIST(APPEND CMAKE_REQUIRED_INCLUDES "${CMAKE_BINARY_DIR}/.mkbuild/download/MK_DIST/windows/libmaxminddb/1.3.2-2/${MK_WIN32_ARCH}/include")
-  CHECK_INCLUDE_FILE_CXX("maxminddb.h" MK_HAVE_HEADER_6420)
-  if(NOT ("${MK_HAVE_HEADER_6420}"))
-    message(FATAL_ERROR "cannot find: maxminddb.h")
-  endif()
-  CHECK_LIBRARY_EXISTS("${CMAKE_BINARY_DIR}/.mkbuild/download/MK_DIST/windows/libmaxminddb/1.3.2-2/${MK_WIN32_ARCH}/lib/maxminddb.lib" "MMDB_open" "" MK_HAVE_LIB_6579)
-  if(NOT ("${MK_HAVE_LIB_6579}"))
-    message(FATAL_ERROR "cannot find: ${CMAKE_BINARY_DIR}/.mkbuild/download/MK_DIST/windows/libmaxminddb/1.3.2-2/${MK_WIN32_ARCH}/lib/maxminddb.lib")
-  endif()
-  LIST(APPEND CMAKE_REQUIRED_LIBRARIES "${CMAKE_BINARY_DIR}/.mkbuild/download/MK_DIST/windows/libmaxminddb/1.3.2-2/${MK_WIN32_ARCH}/lib/maxminddb.lib")
-else()
-  CHECK_INCLUDE_FILE_CXX("maxminddb.h" MK_HAVE_HEADER_7100)
-  if(NOT ("${MK_HAVE_HEADER_7100}"))
-    message(FATAL_ERROR "cannot find: maxminddb.h")
-  endif()
-  CHECK_LIBRARY_EXISTS("maxminddb" "MMDB_open" "" MK_HAVE_LIB_7259)
-  if(NOT ("${MK_HAVE_LIB_7259}"))
-    message(FATAL_ERROR "cannot find: maxminddb")
-  endif()
-  LIST(APPEND CMAKE_REQUIRED_LIBRARIES "maxminddb")
-endif()
-
-#
-# generic-assets-20190205.tar.gz
-#
-
-message(STATUS "mkdirAll: ${CMAKE_BINARY_DIR}/.mkbuild/download")
-execute_process(COMMAND
-  ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/.mkbuild/download"
-  RESULT_VARIABLE FAILURE_7687)
-if("${FAILURE_7687}")
-  message(FATAL_ERROR "${FAILURE_7687}")
-endif()
-message(STATUS "download: https://github.com/measurement-kit/generic-assets/releases/download/20190205/generic-assets-20190205.tar.gz")
-file(DOWNLOAD https://github.com/measurement-kit/generic-assets/releases/download/20190205/generic-assets-20190205.tar.gz
-  "${CMAKE_BINARY_DIR}/.mkbuild/download/generic-assets-20190205.tar.gz"
-  EXPECTED_HASH SHA256=e7826c2575bacbc1aeccf64f10bfdf128c7ab38e6f5d17876775937986499df7
-  TLS_VERIFY ON)
-message(STATUS "Extract: ${CMAKE_BINARY_DIR}/.mkbuild/download/generic-assets-20190205.tar.gz")
-execute_process(COMMAND
-  ${CMAKE_COMMAND} -E tar xf "${CMAKE_BINARY_DIR}/.mkbuild/download/generic-assets-20190205.tar.gz"
-  WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/.mkbuild/download"
-  RESULT_VARIABLE FAILURE_8506)
-if("${FAILURE_8506}")
-  message(FATAL_ERROR "${FAILURE_8506}")
-endif()
-
-#
-# mkbouncer.hpp
-#
-
-message(STATUS "mkdirAll: ${CMAKE_BINARY_DIR}/.mkbuild/include")
-execute_process(COMMAND
-  ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/.mkbuild/include"
-  RESULT_VARIABLE FAILURE_8796)
-if("${FAILURE_8796}")
-  message(FATAL_ERROR "${FAILURE_8796}")
-endif()
-message(STATUS "download: https://raw.githubusercontent.com/measurement-kit/mkbouncer/v0.1.0/mkbouncer.hpp")
-file(DOWNLOAD https://raw.githubusercontent.com/measurement-kit/mkbouncer/v0.1.0/mkbouncer.hpp
-  "${CMAKE_BINARY_DIR}/.mkbuild/include/mkbouncer.hpp"
-  EXPECTED_HASH SHA256=b6d8cf8ce7c832b20997cbd2d2a33dbaf80a347eea4073173a7d8c1ef8f176ab
-  TLS_VERIFY ON)
-LIST(APPEND CMAKE_REQUIRED_INCLUDES "${CMAKE_BINARY_DIR}/.mkbuild/include")
-CHECK_INCLUDE_FILE_CXX("mkbouncer.hpp" MK_HAVE_HEADER_9339)
-if(NOT ("${MK_HAVE_HEADER_9339}"))
-  message(FATAL_ERROR "cannot find: mkbouncer.hpp")
-endif()
-
-#
-# mkcollector.hpp
-#
-
-message(STATUS "mkdirAll: ${CMAKE_BINARY_DIR}/.mkbuild/include")
-execute_process(COMMAND
-  ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/.mkbuild/include"
-  RESULT_VARIABLE FAILURE_9683)
-if("${FAILURE_9683}")
-  message(FATAL_ERROR "${FAILURE_9683}")
-endif()
-message(STATUS "download: https://raw.githubusercontent.com/measurement-kit/mkcollector/v0.3.0/mkcollector.hpp")
-file(DOWNLOAD https://raw.githubusercontent.com/measurement-kit/mkcollector/v0.3.0/mkcollector.hpp
-  "${CMAKE_BINARY_DIR}/.mkbuild/include/mkcollector.hpp"
-  EXPECTED_HASH SHA256=f6edaaf83c02255598827e566b54944bd8285b0387433bd2851fa97a5598deb7
-  TLS_VERIFY ON)
-LIST(APPEND CMAKE_REQUIRED_INCLUDES "${CMAKE_BINARY_DIR}/.mkbuild/include")
-CHECK_INCLUDE_FILE_CXX("mkcollector.hpp" MK_HAVE_HEADER_10236)
-if(NOT ("${MK_HAVE_HEADER_10236}"))
-  message(FATAL_ERROR "cannot find: mkcollector.hpp")
-endif()
-
-#
-# mkcurl.hpp
-#
-
-message(STATUS "mkdirAll: ${CMAKE_BINARY_DIR}/.mkbuild/include")
-execute_process(COMMAND
-  ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/.mkbuild/include"
-  RESULT_VARIABLE FAILURE_10581)
-if("${FAILURE_10581}")
-  message(FATAL_ERROR "${FAILURE_10581}")
-endif()
-message(STATUS "download: https://raw.githubusercontent.com/measurement-kit/mkcurl/v0.9.3/mkcurl.hpp")
-file(DOWNLOAD https://raw.githubusercontent.com/measurement-kit/mkcurl/v0.9.3/mkcurl.hpp
-  "${CMAKE_BINARY_DIR}/.mkbuild/include/mkcurl.hpp"
-  EXPECTED_HASH SHA256=1f301bb3d8e254a8ee40eac44373c2cfa9648d0d3ea96485e9231817aaf18076
-  TLS_VERIFY ON)
-LIST(APPEND CMAKE_REQUIRED_INCLUDES "${CMAKE_BINARY_DIR}/.mkbuild/include")
-CHECK_INCLUDE_FILE_CXX("mkcurl.hpp" MK_HAVE_HEADER_11112)
-if(NOT ("${MK_HAVE_HEADER_11112}"))
-  message(FATAL_ERROR "cannot find: mkcurl.hpp")
-endif()
-
-#
-# mkdata.hpp
-#
-
-message(STATUS "mkdirAll: ${CMAKE_BINARY_DIR}/.mkbuild/include")
-execute_process(COMMAND
-  ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/.mkbuild/include"
-  RESULT_VARIABLE FAILURE_11447)
-if("${FAILURE_11447}")
-  message(FATAL_ERROR "${FAILURE_11447}")
-endif()
-message(STATUS "download: https://raw.githubusercontent.com/measurement-kit/mkdata/v0.3.0/mkdata.hpp")
-file(DOWNLOAD https://raw.githubusercontent.com/measurement-kit/mkdata/v0.3.0/mkdata.hpp
-  "${CMAKE_BINARY_DIR}/.mkbuild/include/mkdata.hpp"
-  EXPECTED_HASH SHA256=96bb0384ecd7231a861111d8818a560b7d5ca83316cf7946a4f1a352db6ecfe3
-  TLS_VERIFY ON)
-LIST(APPEND CMAKE_REQUIRED_INCLUDES "${CMAKE_BINARY_DIR}/.mkbuild/include")
-CHECK_INCLUDE_FILE_CXX("mkdata.hpp" MK_HAVE_HEADER_11978)
-if(NOT ("${MK_HAVE_HEADER_11978}"))
-  message(FATAL_ERROR "cannot find: mkdata.hpp")
-endif()
-
-#
-# mkiplookup.hpp
-#
-
-message(STATUS "mkdirAll: ${CMAKE_BINARY_DIR}/.mkbuild/include")
-execute_process(COMMAND
-  ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/.mkbuild/include"
-  RESULT_VARIABLE FAILURE_12317)
-if("${FAILURE_12317}")
-  message(FATAL_ERROR "${FAILURE_12317}")
-endif()
-message(STATUS "download: https://raw.githubusercontent.com/measurement-kit/mkiplookup/v0.2.0/mkiplookup.hpp")
-file(DOWNLOAD https://raw.githubusercontent.com/measurement-kit/mkiplookup/v0.2.0/mkiplookup.hpp
-  "${CMAKE_BINARY_DIR}/.mkbuild/include/mkiplookup.hpp"
-  EXPECTED_HASH SHA256=a815119250d09be5eff332289f90fd872910f3dc9f29bb4a5fe60e272b38174f
-  TLS_VERIFY ON)
-LIST(APPEND CMAKE_REQUIRED_INCLUDES "${CMAKE_BINARY_DIR}/.mkbuild/include")
-CHECK_INCLUDE_FILE_CXX("mkiplookup.hpp" MK_HAVE_HEADER_12868)
-if(NOT ("${MK_HAVE_HEADER_12868}"))
-  message(FATAL_ERROR "cannot find: mkiplookup.hpp")
-endif()
-
-#
-# mkmock.hpp
-#
-
-message(STATUS "mkdirAll: ${CMAKE_BINARY_DIR}/.mkbuild/include")
-execute_process(COMMAND
-  ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/.mkbuild/include"
-  RESULT_VARIABLE FAILURE_13211)
-if("${FAILURE_13211}")
-  message(FATAL_ERROR "${FAILURE_13211}")
-endif()
-message(STATUS "download: https://raw.githubusercontent.com/measurement-kit/mkmock/v0.2.0/mkmock.hpp")
-file(DOWNLOAD https://raw.githubusercontent.com/measurement-kit/mkmock/v0.2.0/mkmock.hpp
-  "${CMAKE_BINARY_DIR}/.mkbuild/include/mkmock.hpp"
-  EXPECTED_HASH SHA256=f07bc063a2e64484482f986501003e45ead653ea3f53fadbdb45c17a51d916d2
-  TLS_VERIFY ON)
-LIST(APPEND CMAKE_REQUIRED_INCLUDES "${CMAKE_BINARY_DIR}/.mkbuild/include")
-CHECK_INCLUDE_FILE_CXX("mkmock.hpp" MK_HAVE_HEADER_13742)
-if(NOT ("${MK_HAVE_HEADER_13742}"))
-  message(FATAL_ERROR "cannot find: mkmock.hpp")
-endif()
-
-#
-# mkmmdb.hpp
-#
-
-message(STATUS "mkdirAll: ${CMAKE_BINARY_DIR}/.mkbuild/include")
-execute_process(COMMAND
-  ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/.mkbuild/include"
-  RESULT_VARIABLE FAILURE_14077)
-if("${FAILURE_14077}")
-  message(FATAL_ERROR "${FAILURE_14077}")
-endif()
-message(STATUS "download: https://raw.githubusercontent.com/measurement-kit/mkmmdb/v0.4.0/mkmmdb.hpp")
-file(DOWNLOAD https://raw.githubusercontent.com/measurement-kit/mkmmdb/v0.4.0/mkmmdb.hpp
-  "${CMAKE_BINARY_DIR}/.mkbuild/include/mkmmdb.hpp"
-  EXPECTED_HASH SHA256=c1cdcf2980c977a0d4abbdd447ddc19eefdfe6faa42b3be752d50f29930d4a87
-  TLS_VERIFY ON)
-LIST(APPEND CMAKE_REQUIRED_INCLUDES "${CMAKE_BINARY_DIR}/.mkbuild/include")
-CHECK_INCLUDE_FILE_CXX("mkmmdb.hpp" MK_HAVE_HEADER_14608)
-if(NOT ("${MK_HAVE_HEADER_14608}"))
-  message(FATAL_ERROR "cannot find: mkmmdb.hpp")
 endif()
 
 #
@@ -366,9 +90,9 @@ endif()
 message(STATUS "mkdirAll: ${CMAKE_BINARY_DIR}/.mkbuild/include")
 execute_process(COMMAND
   ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/.mkbuild/include"
-  RESULT_VARIABLE FAILURE_14941)
-if("${FAILURE_14941}")
-  message(FATAL_ERROR "${FAILURE_14941}")
+  RESULT_VARIABLE FAILURE_2861)
+if("${FAILURE_2861}")
+  message(FATAL_ERROR "${FAILURE_2861}")
 endif()
 message(STATUS "download: https://raw.githubusercontent.com/nlohmann/json/v3.5.0/single_include/nlohmann/json.hpp")
 file(DOWNLOAD https://raw.githubusercontent.com/nlohmann/json/v3.5.0/single_include/nlohmann/json.hpp
@@ -376,8 +100,8 @@ file(DOWNLOAD https://raw.githubusercontent.com/nlohmann/json/v3.5.0/single_incl
   EXPECTED_HASH SHA256=8a6dbf3bf01156f438d0ca7e78c2971bca50eec4ca6f0cf59adf3464c43bb9d5
   TLS_VERIFY ON)
 LIST(APPEND CMAKE_REQUIRED_INCLUDES "${CMAKE_BINARY_DIR}/.mkbuild/include")
-CHECK_INCLUDE_FILE_CXX("json.hpp" MK_HAVE_HEADER_15496)
-if(NOT ("${MK_HAVE_HEADER_15496}"))
+CHECK_INCLUDE_FILE_CXX("json.hpp" MK_HAVE_HEADER_3413)
+if(NOT ("${MK_HAVE_HEADER_3413}"))
   message(FATAL_ERROR "cannot find: json.hpp")
 endif()
 
@@ -462,20 +186,6 @@ target_link_libraries(
 )
 
 #
-# integration-tests
-#
-
-add_executable(
-  integration-tests
-  integration-tests.cpp
-)
-target_link_libraries(
-  integration-tests
-  mkreport
-  ${CMAKE_REQUIRED_LIBRARIES}
-)
-
-#
 # unit-tests
 #
 
@@ -485,15 +195,8 @@ add_executable(
 )
 target_link_libraries(
   unit-tests
+  mkreport
   ${CMAKE_REQUIRED_LIBRARIES}
-)
-
-#
-# test: integration_tests
-#
-
-add_test(
-  NAME integration_tests COMMAND integration-tests
 )
 
 #

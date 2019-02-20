@@ -4,17 +4,7 @@ docker: bassosimone/mk-debian
 
 dependencies:
 - github.com/catchorg/catch2
-- github.com/curl/curl
 - github.com/howardhinnant/date
-- github.com/maxmind/libmaxminddb
-- github.com/measurement-kit/generic-assets
-- github.com/measurement-kit/mkbouncer
-- github.com/measurement-kit/mkcollector
-- github.com/measurement-kit/mkcurl
-- github.com/measurement-kit/mkdata
-- github.com/measurement-kit/mkiplookup
-- github.com/measurement-kit/mkmock
-- github.com/measurement-kit/mkmmdb
 - github.com/nlohmann/json
 
 targets:
@@ -24,12 +14,8 @@ targets:
   executables:
     unit-tests:
       compile: [unit-tests.cpp]
-    integration-tests:
-      compile: [integration-tests.cpp]
       link: [mkreport]
 
 tests:
   unit_tests:
     command: unit-tests
-  integration_tests:
-    command: integration-tests
