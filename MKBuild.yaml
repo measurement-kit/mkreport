@@ -5,6 +5,7 @@ docker: bassosimone/mk-debian
 dependencies:
 - github.com/catchorg/catch2
 - github.com/howardhinnant/date
+- github.com/measurement-kit/mkuuid4
 - github.com/nlohmann/json
 
 targets:

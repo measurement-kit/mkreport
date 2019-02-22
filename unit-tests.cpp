@@ -1,3 +1,6 @@
+#define MKUUID4_INLINE_IMPL
+#include "mkuuid4.hpp"
+
 #include "mkreport.hpp"
 
 #include <chrono>

@@ -22,9 +22,6 @@ list(APPEND CMAKE_REQUIRED_LIBRARIES Threads::Threads)
 
 if(("${WIN32}"))
   list(APPEND CMAKE_REQUIRED_LIBRARIES ws2_32 crypt32)
-  if(("${MINGW}"))
-    list(APPEND CMAKE_REQUIRED_LIBRARIES -static-libgcc -static-libstdc++)
-  endif()
 endif()
 
 enable_testing()
@@ -46,9 +43,9 @@ endif()
 message(STATUS "mkdirAll: ${CMAKE_BINARY_DIR}/.mkbuild/include")
 execute_process(COMMAND
   ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/.mkbuild/include"
-  RESULT_VARIABLE FAILURE_1160)
-if("${FAILURE_1160}")
-  message(FATAL_ERROR "${FAILURE_1160}")
+  RESULT_VARIABLE FAILURE_1056)
+if("${FAILURE_1056}")
+  message(FATAL_ERROR "${FAILURE_1056}")
 endif()
 message(STATUS "download: https://github.com/catchorg/Catch2/releases/download/v2.3.0/catch.hpp")
 file(DOWNLOAD https://github.com/catchorg/Catch2/releases/download/v2.3.0/catch.hpp
@@ -56,8 +53,8 @@ file(DOWNLOAD https://github.com/catchorg/Catch2/releases/download/v2.3.0/catch.
   EXPECTED_HASH SHA256=5eb8532fd5ec0d28433eba8a749102fd1f98078c5ebf35ad607fb2455a000004
   TLS_VERIFY ON)
 LIST(APPEND CMAKE_REQUIRED_INCLUDES "${CMAKE_BINARY_DIR}/.mkbuild/include")
-CHECK_INCLUDE_FILE_CXX("catch.hpp" MK_HAVE_HEADER_1677)
-if(NOT ("${MK_HAVE_HEADER_1677}"))
+CHECK_INCLUDE_FILE_CXX("catch.hpp" MK_HAVE_HEADER_1573)
+if(NOT ("${MK_HAVE_HEADER_1573}"))
   message(FATAL_ERROR "cannot find: catch.hpp")
 endif()
 
@@ -68,9 +65,9 @@ endif()
 message(STATUS "mkdirAll: ${CMAKE_BINARY_DIR}/.mkbuild/include")
 execute_process(COMMAND
   ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/.mkbuild/include"
-  RESULT_VARIABLE FAILURE_2004)
-if("${FAILURE_2004}")
-  message(FATAL_ERROR "${FAILURE_2004}")
+  RESULT_VARIABLE FAILURE_1900)
+if("${FAILURE_1900}")
+  message(FATAL_ERROR "${FAILURE_1900}")
 endif()
 message(STATUS "download: https://raw.githubusercontent.com/HowardHinnant/date/v2.4.1/include/date/date.h")
 file(DOWNLOAD https://raw.githubusercontent.com/HowardHinnant/date/v2.4.1/include/date/date.h
@@ -78,9 +75,31 @@ file(DOWNLOAD https://raw.githubusercontent.com/HowardHinnant/date/v2.4.1/includ
   EXPECTED_HASH SHA256=07aa75752540023ccccab178ed193f536c9d032cbbda997159af9f339d331eda
   TLS_VERIFY ON)
 LIST(APPEND CMAKE_REQUIRED_INCLUDES "${CMAKE_BINARY_DIR}/.mkbuild/include")
-CHECK_INCLUDE_FILE_CXX("date.h" MK_HAVE_HEADER_2538)
-if(NOT ("${MK_HAVE_HEADER_2538}"))
+CHECK_INCLUDE_FILE_CXX("date.h" MK_HAVE_HEADER_2434)
+if(NOT ("${MK_HAVE_HEADER_2434}"))
   message(FATAL_ERROR "cannot find: date.h")
+endif()
+
+#
+# mkuuid4.hpp
+#
+
+message(STATUS "mkdirAll: ${CMAKE_BINARY_DIR}/.mkbuild/include")
+execute_process(COMMAND
+  ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/.mkbuild/include"
+  RESULT_VARIABLE FAILURE_2760)
+if("${FAILURE_2760}")
+  message(FATAL_ERROR "${FAILURE_2760}")
+endif()
+message(STATUS "download: https://raw.githubusercontent.com/measurement-kit/mkuuid4/v0.1.0/mkuuid4.hpp")
+file(DOWNLOAD https://raw.githubusercontent.com/measurement-kit/mkuuid4/v0.1.0/mkuuid4.hpp
+  "${CMAKE_BINARY_DIR}/.mkbuild/include/mkuuid4.hpp"
+  EXPECTED_HASH SHA256=5b6b4445697d9beb6ad5310d98b7743c2ffe8266cdec79df0a7a429dcfc247ac
+  TLS_VERIFY ON)
+LIST(APPEND CMAKE_REQUIRED_INCLUDES "${CMAKE_BINARY_DIR}/.mkbuild/include")
+CHECK_INCLUDE_FILE_CXX("mkuuid4.hpp" MK_HAVE_HEADER_3293)
+if(NOT ("${MK_HAVE_HEADER_3293}"))
+  message(FATAL_ERROR "cannot find: mkuuid4.hpp")
 endif()
 
 #
@@ -90,9 +109,9 @@ endif()
 message(STATUS "mkdirAll: ${CMAKE_BINARY_DIR}/.mkbuild/include")
 execute_process(COMMAND
   ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/.mkbuild/include"
-  RESULT_VARIABLE FAILURE_2861)
-if("${FAILURE_2861}")
-  message(FATAL_ERROR "${FAILURE_2861}")
+  RESULT_VARIABLE FAILURE_3626)
+if("${FAILURE_3626}")
+  message(FATAL_ERROR "${FAILURE_3626}")
 endif()
 message(STATUS "download: https://raw.githubusercontent.com/nlohmann/json/v3.5.0/single_include/nlohmann/json.hpp")
 file(DOWNLOAD https://raw.githubusercontent.com/nlohmann/json/v3.5.0/single_include/nlohmann/json.hpp
@@ -100,8 +119,8 @@ file(DOWNLOAD https://raw.githubusercontent.com/nlohmann/json/v3.5.0/single_incl
   EXPECTED_HASH SHA256=8a6dbf3bf01156f438d0ca7e78c2971bca50eec4ca6f0cf59adf3464c43bb9d5
   TLS_VERIFY ON)
 LIST(APPEND CMAKE_REQUIRED_INCLUDES "${CMAKE_BINARY_DIR}/.mkbuild/include")
-CHECK_INCLUDE_FILE_CXX("json.hpp" MK_HAVE_HEADER_3413)
-if(NOT ("${MK_HAVE_HEADER_3413}"))
+CHECK_INCLUDE_FILE_CXX("json.hpp" MK_HAVE_HEADER_4178)
+if(NOT ("${MK_HAVE_HEADER_4178}"))
   message(FATAL_ERROR "cannot find: json.hpp")
 endif()
 
@@ -139,12 +158,14 @@ macro(MKSetRestrictiveCompilerFlags)
     set(MK_COMMON_FLAGS "${MK_COMMON_FLAGS} -Wsign-promo")
     set(MK_COMMON_FLAGS "${MK_COMMON_FLAGS} -Wnon-virtual-dtor")
     set(MK_COMMON_FLAGS "${MK_COMMON_FLAGS} -fstack-protector-all")
-    if(NOT "${APPLE}")
+    if(NOT "${APPLE}" AND NOT "${MINGW}")
       set(MK_LD_FLAGS "${MK_LD_FLAGS} -Wl,-z,noexecstack")
       set(MK_LD_FLAGS "${MK_LD_FLAGS} -Wl,-z,now")
       set(MK_LD_FLAGS "${MK_LD_FLAGS} -Wl,-z,relro")
       set(MK_LD_FLAGS "${MK_LD_FLAGS} -Wl,-z,nodlopen")
       set(MK_LD_FLAGS "${MK_LD_FLAGS} -Wl,-z,nodump")
+    elseif(("${MINGW}"))
+      set(MK_LD_FLAGS "${MK_LD_FLAGS} -static")
     endif()
     add_definitions(-D_FORTIFY_SOURCES=2)
   elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
