@@ -239,7 +239,11 @@ bool dump(const Measurement &measurement, std::string &str,
   m["annotations"] = measurement.report.annotations;
   m["data_format_version"] = "0.2.0";
   m["id"] = mk::uuid4::gen();
-  m["input"] = measurement.input;
+  if (!measurement.input.empty()) {
+    m["input"] = measurement.input;
+  } else {
+    m["input"] = nullptr;
+  }
   m["input_hashes"] = nlohmann::json::array();  // conventional value
   m["measurement_start_time"] = measurement.start_time;
   m["options"] = nlohmann::json::array();  // conventional value
